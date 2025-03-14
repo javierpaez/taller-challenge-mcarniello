@@ -10,6 +10,10 @@ class Book < ApplicationRecord
   STATUSES = %w[available checked_out reserved].freeze
   validates :status, inclusion: { in: STATUSES, message: "is not a valid status" }
 
+  def is_available?
+    self.status === 'available'
+  end
+
   private
 
   def publication_date_cannot_be_in_the_future

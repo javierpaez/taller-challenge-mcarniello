@@ -66,6 +66,24 @@ class BooksController < ApplicationController
     render json: { report: report, generated_at: Time.now.to_s }
   end
 
+  def reserve
+    book_id = params[:id]
+    user_email = params[:user_email]
+
+    book = Book.find_by_id(book_id)
+
+    if (book.present?)
+      if (book.is_available?)
+        book.update(email: user_email, status: Book::STATUSES[2])
+        render json: { data: book }, status: :ok
+      else
+        render json: { errors: ['Book is not available'] }, status: 400
+      end
+    else
+      render json: { errors: ['Book was not found'] }, status: :not_found
+    end
+  end
+
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_book
@@ -75,5 +93,9 @@ class BooksController < ApplicationController
     # Only allow a list of trusted parameters through.
     def book_params
       params.expect(book: [ :title, :author_id, :publication_date, :rating, :status ])
+    end
+
+    def reservation_params
+      params.require(:user_email)
     end
 end
